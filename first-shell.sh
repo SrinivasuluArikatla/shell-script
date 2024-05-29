@@ -1,59 +1,40 @@
 #!/bin/bash
 
-# Define threshold values
-DISK_THRESHOLD=80
-MEMORY_THRESHOLD=80
-CPU_THRESHOLD=80
-
-# Define recipient email for alerts
-ALERT_EMAIL="myessentialsone@gmail.com"
-
-# Function to check disk usage
-check_disk_usage() {
-  DISK_USAGE=$(df / | grep / | awk '{ print $5 }' | sed 's/%//g')
-  if [ $DISK_USAGE -gt $DISK_THRESHOLD ]; then
-    echo "Disk usage is above threshold: ${DISK_USAGE}% used."
-    send_alert "Disk usage is high: ${DISK_USAGE}% used."
-  else
-    echo "Disk usage is within safe limits: ${DISK_USAGE}% used."
-  fi
+# Function to get CPU information
+get_cpu_info() {
+  echo "CPU Info:"
+  lscpu | grep 'Model name\|Socket(s)\|Core(s) per socket\|Thread(s) per core\|CPU(s)'
 }
 
-# Function to check memory usage
-check_memory_usage() {
-  MEMORY_USAGE=$(free | grep Mem | awk '{ print $3/$2 * 100.0 }' | awk -F. '{ print $1 }')
-  if [ $MEMORY_USAGE -gt $MEMORY_THRESHOLD ]; then
-    echo "Memory usage is above threshold: ${MEMORY_USAGE}% used."
-    send_alert "Memory usage is high: ${MEMORY_USAGE}% used."
-  else
-    echo "Memory usage is within safe limits: ${MEMORY_USAGE}% used."
-  fi
+# Function to get memory information
+get_memory_info() {
+  echo "Memory Info:"
+  free -h | grep 'Mem'
 }
 
-# Function to check CPU load
-check_cpu_load() {
-  CPU_LOAD=$(top -bn1 | grep "load average:" | awk '{ print $12 }' | sed 's/,//')
-  CPU_LOAD_INT=$(echo $CPU_LOAD | awk -F. '{ print $1 }')
-  if [ $CPU_LOAD_INT -gt $CPU_THRESHOLD ]; then
-    echo "CPU load is above threshold: ${CPU_LOAD}"
-    send_alert "CPU load is high: ${CPU_LOAD}"
-  else
-    echo "CPU load is within safe limits: ${CPU_LOAD}"
-  fi
+# Function to get public IP address
+get_ip_address() {
+  echo "Public IP Address:"
+  curl -s http://169.254.169.254/latest/meta-data/public-ipv4 || echo "No public IP assigned"
 }
 
-# Function to send an alert email
-send_alert() {
-  local message=$1
-  echo "Sending alert: $message"
-  echo "$message" | mail -s "System Alert" $ALERT_EMAIL
+# Function to get private IP address
+get_private_ip_address() {
+  echo "Private IP Address:"
+  curl -s http://169.254.169.254/latest/meta-data/local-ipv4
 }
 
-# Main script execution
-echo "Starting system monitoring..."
+# Main function to display system information
+main() {
+  get_cpu_info
+  echo
+  get_memory_info
+  echo
+  get_ip_address
+  echo
+  get_private_ip_address
+}
 
-check_disk_usage
-check_memory_usage
-check_cpu_load
+# Run the main function
+main
 
-echo "System monitoring complete."
