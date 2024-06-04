@@ -23,7 +23,8 @@ get_hostname() {
 
 # Function to get the OS details
 get_os_details() {
-    echo "OS Details: $(cat /etc/os-release)"
+    echo "OS Details:"
+    cat /etc/os-release
 }
 
 # Function to get the kernel version
@@ -33,25 +34,25 @@ get_kernel_version() {
 
 # Function to get the CPU information
 get_cpu_info() {
-    echo "CPU Information: "
+    echo "CPU Information:"
     lscpu
 }
 
 # Function to get the memory usage
 get_memory_usage() {
-    echo "Memory Usage: "
+    echo "Memory Usage:"
     free -h
 }
 
 # Function to get the disk usage
 get_disk_usage() {
-    echo "Disk Usage: "
+    echo "Disk Usage:"
     df -h
 }
 
 # Function to get the network configuration
 get_network_config() {
-    echo "Network Configuration: "
+    echo "Network Configuration:"
     ip a
 }
 
@@ -75,7 +76,7 @@ get_all_info() {
 # Main script logic
 while true; do
     display_menu
-    read choice
+    read -r choice
 
     case $choice in
         1) get_hostname ;;
@@ -91,6 +92,6 @@ while true; do
     esac
 
     echo -n "Press Enter to continue..."
-    read
+    read -r
     clear
 done
